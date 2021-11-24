@@ -55,16 +55,28 @@ Installing the latest splunk plugin will create a config file (`~/.steampipe/con
 
 ```hcl
 connection "splunk" {
-  plugin   = "splunk"
-  url      = "localhost:8089"
-  username = "admin"
-  password = "password"
+  plugin = "splunk"
+  
+  # `url` - URL of the Splunk installation.
+  # If `url` is not specified in a connection, it will be loaded from:
+  #   - The value specified in the `SPLUNK_URL` environment variable.
+  url = "localhost:8089"
+  
+  # 1. To authenticate using username and password
+  # `username` - Username for authentication.
+  # `password` - Password for authentication.
+  # If `username` or `password` are not specified in a connection, credentials will be loaded from:
+  #   - The value specified in the `SPLUNK_USERNAME` and `SPLUNK_PASSWORD` environment variables respectively.
+  # username = "admin"
+  # password = "password"
+
+  # 2. To authenticate using Splunk authentication token
+  # `auth_token` - Splunk authentication token.
+  # If `auth_token` is not specified in a connection, it will be loaded from:
+  #   - The value specified in the `SPLUNK_AUTH_TOKEN` environment variable.
+  # auth_token = "<YOUR_AUTH_TOKEN>"
 }
 ```
-
-- `url` - URL of the Splunk installation.
-- `username` - Username for authentication.
-- `password` - Password for authentication.
 
 ## Get involved
 
