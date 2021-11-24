@@ -25,14 +25,14 @@ select
   max_time,
   total_event_count
 from
-  splunk_index
+  splunk_index;
 ```
 
-```
+```sh
 +----------------+---------------------+-------------------+
 | name           | max_time            | total_event_count |
 +----------------+---------------------+-------------------+
-| my_event_index | 2021-11-18T01:29:21 |              2345 |
+| my_event_index | 2021-11-18T01:29:21 | 2345              |
 +----------------+---------------------+-------------------+
 ```
 
@@ -52,20 +52,20 @@ cd steampipe-plugin-splunk
 
 Build, which automatically installs the new version to your `~/.steampipe/plugins` directory:
 
-```
+```bash
 make
 ```
 
 Configure the plugin:
 
-```
+```shell
 cp config/* ~/.steampipe/config
 vi ~/.steampipe/config/splunk.spc
 ```
 
 Try it!
 
-```
+```shell
 steampipe query
 > .inspect splunk
 ```

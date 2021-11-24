@@ -3,6 +3,7 @@ package splunk
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/turbot/steampipe-plugin-splunk/types"
 
@@ -17,6 +18,10 @@ func tableSplunkApp(ctx context.Context) *plugin.Table {
 		Description: "List all apps installed locally.",
 		List: &plugin.ListConfig{
 			Hydrate: listApp,
+		},
+		Get: &plugin.GetConfig{
+			Hydrate:    getApp,
+			KeyColumns: plugin.SingleColumn("name"),
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -74,6 +79,38 @@ func listApp(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (i
 		if count >= *obj.Paging.Total {
 			break
 		}
+	}
+
+	return nil, nil
+}
+
+func getApp(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	conn, err := connect(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("splunk_app.getApp", "connection_error", err)
+		return nil, err
+	}
+
+	var name string
+	equalQuals := d.KeyColumnQuals
+	if equalQuals["name"] != nil {
+		name = equalQuals["name"].GetStringValue()
+	}
+
+	endpoint := conn.BuildSplunkURL(fmt.Sprintf("services/apps/local/%s", name), nil)
+	data, err := conn.Get(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	obj := types.AppListResponse{}
+	err = json.Unmarshal(data, &obj)
+	if err != nil {
+		plugin.Logger(ctx).Error("splunk_app.getApp", "query_error", err)
+		return nil, err
+	}
+
+	if len(obj.Entry) > 0 {
+		return obj.Entry[0], nil
 	}
 
 	return nil, nil

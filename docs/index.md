@@ -24,14 +24,14 @@ select
   max_time,
   total_event_count
 from
-  splunk_index
+  splunk_index;
 ```
 
-```
+```sh
 +----------------+---------------------+-------------------+
 | name           | max_time            | total_event_count |
 +----------------+---------------------+-------------------+
-| my_event_index | 2021-11-18T01:29:21 |              2345 |
+| my_event_index | 2021-11-18T01:29:21 | 2345              |
 +----------------+---------------------+-------------------+
 ```
 
@@ -65,7 +65,6 @@ connection "splunk" {
 - `url` - URL of the Splunk installation.
 - `username` - Username for authentication.
 - `password` - Password for authentication.
-
 
 ## Get involved
 

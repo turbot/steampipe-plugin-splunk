@@ -1,9 +1,9 @@
 connection "splunk" {
   plugin = "splunk"
 
-  url = "localhost:8089"
-  username = "admin"
-  password = "password"
+  # url = "localhost:8089"
+  # username = "admin"
+  # password = "password"
 
   # Paths is a list of locations to search for Dockerfiles by default.
   # Wildcards are supported per https://golang.org/pkg/path/filepath/#Match
