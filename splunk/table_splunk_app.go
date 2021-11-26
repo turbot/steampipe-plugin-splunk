@@ -57,6 +57,10 @@ func listApp(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (i
 
 	params := types.ListRequest{}
 
+	if d.QueryContext.Limit != nil {
+		params.Count = d.QueryContext.Limit
+	}
+
 	count := int64(0)
 	for {
 		params.Offset = types.Int64(count)
@@ -74,6 +78,12 @@ func listApp(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (i
 		}
 		for _, i := range obj.Entry {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
+
 			count++
 		}
 		if count >= *obj.Paging.Total {

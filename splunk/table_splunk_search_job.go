@@ -86,6 +86,10 @@ func listSearchJob(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 
 	params := types.SearchJobListRequest{}
 
+	if d.QueryContext.Limit != nil {
+		params.Count = d.QueryContext.Limit
+	}
+
 	count := int64(0)
 	for {
 		params.Offset = types.Int64(count)
@@ -102,6 +106,12 @@ func listSearchJob(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 		}
 		for _, i := range obj.Entry {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
+
 			count++
 		}
 		if count >= *obj.Paging.Total {

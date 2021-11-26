@@ -96,6 +96,10 @@ func listIndex(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) 
 		params.DataType = types.String(equalQuals["data_type"].GetStringValue())
 	}
 
+	if d.QueryContext.Limit != nil {
+		params.Count = d.QueryContext.Limit
+	}
+
 	count := int64(0)
 	for {
 		params.Offset = types.Int64(count)
@@ -112,6 +116,12 @@ func listIndex(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) 
 		}
 		for _, i := range obj.Entry {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
+
 			count++
 		}
 		if count >= *obj.Paging.Total {
