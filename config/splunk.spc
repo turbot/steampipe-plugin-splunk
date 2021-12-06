@@ -5,6 +5,11 @@ connection "splunk" {
   # If `url` is not specified in a connection, it will be loaded from:
   #   - The value specified in the `SPLUNK_URL` environment variable.
   url = "localhost:8089"
+
+  # `insecure_skip_verify` - InsecureSkipVerify controls whether a client verifies the server’s certificate chain and host name. If InsecureSkipVerify is true, crypto/tls accepts any certificate presented by the server and any host name in that certificate.
+  # If `insecure_skip_verify` is not specified in a connection, it will be loaded from:
+  #   - The value specified in the `SPLUNK_INSECURE_SKIP_VERIFY` environment variable.
+  # insecure_skip_verify = true
   
   # 1. To authenticate using username and password
   # `username` - Username for authentication.
@@ -19,17 +24,4 @@ connection "splunk" {
   # If `auth_token` is not specified in a connection, it will be loaded from:
   #   - The value specified in the `SPLUNK_AUTH_TOKEN` environment variable.
   # auth_token = "<YOUR_AUTH_TOKEN>"
-
-  # Paths is a list of locations to search for Dockerfiles by default.
-  # Wildcards are supported per https://golang.org/pkg/path/filepath/#Match
-  # Exact file paths can have any name. Wildcard based matches must either
-  # have a name of Dockerfile (e.g. Dockerfile, Dockerfile.example) or an
-  # .splunkfile extension (e.g. nginx.splunkfile).
-  # paths = [ "/path/to/dir/*", "/path/to/exact/custom-splunkfile-name" ]
-
-  # Optional splunk engine configuration.
-  # host        = "tcp://192.168.59.103:2376"
-  # cert_path   = "/path/to/my-cert"
-  # api_version = "1.41"
-  # tls_verify  = true
 }
