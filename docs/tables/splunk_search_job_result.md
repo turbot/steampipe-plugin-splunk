@@ -52,3 +52,35 @@ where
   sid = '1637923584.685'
   and query = 'search index=main';
 ```
+
+### List all completed search results performed by splunk-system-user
+
+```sql
+select
+  sid,
+  user,
+  source_type,
+  time,
+  result
+from
+  splunk_search_job_result
+where
+  sid = '1637923584.685'
+  and query = 'search user=splunk-system-user AND info=completed';
+```
+
+### List all search results related to authentication changes
+
+```sql
+select
+  sid,
+  user,
+  source_type,
+  time,
+  result
+from
+  splunk_search_job_result
+where
+  sid = '1637923584.685'
+  and query = 'search action=change_authentication';
+```
