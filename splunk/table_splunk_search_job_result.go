@@ -75,15 +75,15 @@ func listSearchJobResult(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 			tsSecs := q.Value.GetTimestampValue().GetSeconds()
 			switch q.Operator {
 			case ">":
-				queryParts = append(queryParts, fmt.Sprintf("where _indextime>%d", tsSecs))
+				queryParts = append(queryParts, fmt.Sprintf("where _time>%d", tsSecs))
 			case ">=":
-				queryParts = append(queryParts, fmt.Sprintf("where _indextime>=%d", tsSecs))
+				queryParts = append(queryParts, fmt.Sprintf("where _time>=%d", tsSecs))
 			case "<":
-				queryParts = append(queryParts, fmt.Sprintf("where _indextime<%d", tsSecs))
+				queryParts = append(queryParts, fmt.Sprintf("where _time<%d", tsSecs))
 			case "<=":
-				queryParts = append(queryParts, fmt.Sprintf("where _indextime<=%d", tsSecs))
+				queryParts = append(queryParts, fmt.Sprintf("where _time<=%d", tsSecs))
 			case "=":
-				queryParts = append(queryParts, fmt.Sprintf("where _indextime=%d", tsSecs))
+				queryParts = append(queryParts, fmt.Sprintf("where _time=%d", tsSecs))
 			}
 		}
 	}
