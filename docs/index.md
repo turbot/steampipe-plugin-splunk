@@ -2,7 +2,7 @@
 organization: Turbot
 category: ["security"]
 icon_url: "/images/plugins/turbot/splunk.svg"
-brand_color: "#65a637"
+brand_color: "#CC2B7E"
 display_name: "Splunk"
 short_name: "splunk"
 description: "Steampipe plugin to query apps, indexes, logs and more from Splunk."
