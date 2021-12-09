@@ -3,6 +3,7 @@ package splunk
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/turbot/steampipe-plugin-splunk/types"
 
@@ -17,6 +18,10 @@ func tableSplunkUser(ctx context.Context) *plugin.Table {
 		Description: "List all users.",
 		List: &plugin.ListConfig{
 			Hydrate: listUser,
+		},
+		Get: &plugin.GetConfig{
+			Hydrate:    getUser,
+			KeyColumns: plugin.SingleColumn("name"),
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -67,5 +72,37 @@ func listUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 	for _, i := range obj.Entry {
 		d.StreamListItem(ctx, i)
 	}
+	return nil, nil
+}
+
+func getUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	conn, err := connect(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("splunk_user.getUser", "connection_error", err)
+		return nil, err
+	}
+
+	var name string
+	equalQuals := d.KeyColumnQuals
+	if equalQuals["name"] != nil {
+		name = equalQuals["name"].GetStringValue()
+	}
+
+	endpoint := conn.BuildSplunkURL(fmt.Sprintf("services/authentication/users/%s", name), nil)
+	data, err := conn.Get(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	obj := types.UserListResponse{}
+	err = json.Unmarshal(data, &obj)
+	if err != nil {
+		plugin.Logger(ctx).Error("splunk_user.getUser", "query_error", err)
+		return nil, err
+	}
+
+	if len(obj.Entry) > 0 {
+		return obj.Entry[0], nil
+	}
+
 	return nil, nil
 }

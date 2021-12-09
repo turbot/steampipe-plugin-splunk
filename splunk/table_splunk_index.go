@@ -3,6 +3,7 @@ package splunk
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/turbot/steampipe-plugin-splunk/types"
 
@@ -20,6 +21,10 @@ func tableSplunkIndex(ctx context.Context) *plugin.Table {
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "data_type", Require: plugin.Optional},
 			},
+		},
+		Get: &plugin.GetConfig{
+			Hydrate:    getIndex,
+			KeyColumns: plugin.SingleColumn("name"),
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -53,14 +58,12 @@ func tableSplunkIndex(ctx context.Context) *plugin.Table {
 			{Name: "max_mem_db", Type: proto.ColumnType_INT, Transform: transform.FromField("Content.MaxMemMB"), Description: "The amount of memory, in MB, allocated for indexing. This is a global setting, not a per index setting."},
 			{Name: "max_meta_entries", Type: proto.ColumnType_INT, Transform: transform.FromField("Content.MaxMemMB"), Description: "Sets the maximum number of unique lines in .data files in a bucket, which may help to reduce memory consumption. If set to 0, this setting is ignored (it is treated as infinite). If exceeded, a hot bucket is rolled to prevent further increase. If your buckets are rolling due to Strings.data hitting this limit, the culprit may be the punct field in your data. If you do not use punct, it may be best to simply disable this (see props.conf.spec in $SPLUNK_HOME/etc/system/README)."},
 			{Name: "max_running_process_groups", Type: proto.ColumnType_INT, Transform: transform.FromField("Content.MaxRunningProcessGroups"), Description: "Maximum number of processes that the indexer fires off at a time. This is a global setting, not a per index setting."},
-			// TODO - make this a timestamp with support for empty string / nil
-			{Name: "max_time", Type: proto.ColumnType_STRING, Transform: transform.FromField("Content.MaxTime"), Description: "ISO8601 timestamp of the newest event time in the index."},
+			{Name: "max_time", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("Content.MaxTime").Transform(transform.NullIfZeroValue), Description: "ISO8601 timestamp of the newest event time in the index."},
 			{Name: "max_total_data_size_mb", Type: proto.ColumnType_INT, Transform: transform.FromField("Content.MaxTotalDataSizeMB"), Description: "The maximum size of an index, in MB."},
 			{Name: "max_warm_db_count", Type: proto.ColumnType_INT, Transform: transform.FromField("Content.MaxWarmDBCount"), Description: "The maximum number of warm buckets. If this number is exceeded, the warm bucket/s with the lowest value for their latest times are moved to cold."},
 			{Name: "mem_pool_mb", Type: proto.ColumnType_STRING, Transform: transform.FromField("Content.MemPoolMB"), Description: "Determines how much memory is given to the indexer memory pool. This is a global setting, not a per-index setting."},
 			{Name: "min_raw_file_sync_secs", Type: proto.ColumnType_STRING, Transform: transform.FromField("Content.MinRawFileSyncSecs"), Description: "Can be either an integer (or 'disable'). Some filesystems are very inefficient at performing sync operations, so only enable this if you are sure it is needed. The integer sets how frequently splunkd forces a filesystem sync while compressing journal slices. During this period, uncompressed slices are left on disk even after they are compressed. Then splunkd forces a filesystem sync of the compressed journal and removes the accumulated uncompressed files. If 0 is specified, splunkd forces a filesystem sync after every slice completes compressing. Specifying 'disable' disables syncing entirely: uncompressed slices are removed as soon as compression is complete."},
-			// TODO - make this a timestamp with support for empty string / nil
-			{Name: "min_time", Type: proto.ColumnType_STRING, Transform: transform.FromField("Content.MinTime"), Description: "ISO8601 timestamp of the oldest event time in the index."},
+			{Name: "min_time", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("Content.MinTime").Transform(transform.NullIfZeroValue), Description: "ISO8601 timestamp of the oldest event time in the index."},
 			{Name: "partial_service_meta_period", Type: proto.ColumnType_INT, Transform: transform.FromField("Content.PartialServiceMetaPeriod"), Description: "Related to serviceMetaPeriod. By default it is turned off (zero). If set, it enables metadata sync every <integer> seconds, but only for records where the sync can be done efficiently in-place, without requiring a full re-write of the metadata file. Records that require full re-write are be sync'ed at serviceMetaPeriod. partialServiceMetaPeriod specifies, in seconds, how frequently it should sync. Zero means that this feature is turned off and serviceMetaPeriod is the only time when metadata sync happens. If the value of partialServiceMetaPeriod is greater than serviceMetaPeriod, this setting has no effect."},
 			{Name: "quarantine_future_secs", Type: proto.ColumnType_INT, Transform: transform.FromField("Content.QuarantineFutureSecs"), Description: "Events with timestamp of quarantineFutureSecs newer than 'now' that are dropped into quarantine bucket. Defaults to 2592000 (30 days). This is a mechanism to prevent main hot buckets from being polluted with fringe events."},
 			{Name: "quarantine_past_secs", Type: proto.ColumnType_INT, Transform: transform.FromField("Content.QuarantinePastSecs"), Description: "Events with timestamp of quarantinePastSecs older than 'now' are dropped into quarantine bucket. Defaults to 77760000 (900 days). This is a mechanism to prevent the main hot buckets from being polluted with fringe events."},
@@ -93,6 +96,10 @@ func listIndex(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) 
 		params.DataType = types.String(equalQuals["data_type"].GetStringValue())
 	}
 
+	if d.QueryContext.Limit != nil {
+		params.Count = d.QueryContext.Limit
+	}
+
 	count := int64(0)
 	for {
 		params.Offset = types.Int64(count)
@@ -109,11 +116,49 @@ func listIndex(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) 
 		}
 		for _, i := range obj.Entry {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
+
 			count++
 		}
 		if count >= *obj.Paging.Total {
 			break
 		}
+	}
+
+	return nil, nil
+}
+
+func getIndex(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	conn, err := connect(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("splunk_index.getIndex", "connection_error", err)
+		return nil, err
+	}
+
+	var name string
+	equalQuals := d.KeyColumnQuals
+	if equalQuals["name"] != nil {
+		name = equalQuals["name"].GetStringValue()
+	}
+
+	endpoint := conn.BuildSplunkURL(fmt.Sprintf("services/data/indexes/%s", name), nil)
+	data, err := conn.Get(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	obj := types.IndexListResponse{}
+	err = json.Unmarshal(data, &obj)
+	if err != nil {
+		plugin.Logger(ctx).Error("splunk_index.getIndex", "query_error", err)
+		return nil, err
+	}
+
+	if len(obj.Entry) > 0 {
+		return obj.Entry[0], nil
 	}
 
 	return nil, nil

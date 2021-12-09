@@ -233,22 +233,20 @@ func connect(_ context.Context, d *plugin.QueryData) (*splunkClient, error) {
 
 	// Prefer config settings
 	splunkConfig := GetConfig(d.Connection)
-	if &splunkConfig != nil {
-		if splunkConfig.URL != nil {
-			url = *splunkConfig.URL
-		}
-		if splunkConfig.Username != nil {
-			username = *splunkConfig.Username
-		}
-		if splunkConfig.Password != nil {
-			password = *splunkConfig.Password
-		}
-		if splunkConfig.AuthToken != nil {
-			authToken = *splunkConfig.AuthToken
-		}
-		if splunkConfig.InsecureSkipVerify != nil {
-			insecureSkipVerify = *splunkConfig.InsecureSkipVerify
-		}
+	if splunkConfig.URL != nil {
+		url = *splunkConfig.URL
+	}
+	if splunkConfig.Username != nil {
+		username = *splunkConfig.Username
+	}
+	if splunkConfig.Password != nil {
+		password = *splunkConfig.Password
+	}
+	if splunkConfig.AuthToken != nil {
+		authToken = *splunkConfig.AuthToken
+	}
+	if splunkConfig.InsecureSkipVerify != nil {
+		insecureSkipVerify = *splunkConfig.InsecureSkipVerify
 	}
 
 	// Defaults

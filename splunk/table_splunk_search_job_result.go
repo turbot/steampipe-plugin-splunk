@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/turbot/steampipe-plugin-splunk/types"
 
@@ -73,12 +74,16 @@ func listSearchJobResult(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 		for _, q := range quals["time"].Quals {
 			tsSecs := q.Value.GetTimestampValue().GetSeconds()
 			switch q.Operator {
-			case ">", ">=":
-				queryParts = append(queryParts, fmt.Sprintf("where earliest=%d", tsSecs))
-			case "<", "<=":
-				queryParts = append(queryParts, fmt.Sprintf("where latest=%d", tsSecs))
+			case ">":
+				queryParts = append(queryParts, fmt.Sprintf("where _time>%d", tsSecs))
+			case ">=":
+				queryParts = append(queryParts, fmt.Sprintf("where _time>=%d", tsSecs))
+			case "<":
+				queryParts = append(queryParts, fmt.Sprintf("where _time<%d", tsSecs))
+			case "<=":
+				queryParts = append(queryParts, fmt.Sprintf("where _time<=%d", tsSecs))
 			case "=":
-				queryParts = append(queryParts, fmt.Sprintf("where earliest=%d and latest=%d", tsSecs, tsSecs))
+				queryParts = append(queryParts, fmt.Sprintf("where _time=%d", tsSecs))
 			}
 		}
 	}
@@ -100,6 +105,11 @@ func listSearchJobResult(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 		return nil, err
 	}
 	for _, i := range obj.Results {
+		// Format time
+		formatTime, _ := time.Parse(time.RFC3339, i.Time)
+		utcTime := formatTime.UTC()
+		i.Time = utcTime.Format("2006-01-02T15:04:05Z")
+
 		d.StreamListItem(ctx, i)
 	}
 

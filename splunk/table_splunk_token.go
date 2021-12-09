@@ -64,6 +64,11 @@ func listToken(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) 
 	}
 	for _, i := range obj.Entry {
 		d.StreamListItem(ctx, i)
+
+		// Context can be cancelled due to manual cancellation or the limit has been hit
+		if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			break
+		}
 	}
 	return nil, nil
 }

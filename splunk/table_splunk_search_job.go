@@ -3,6 +3,7 @@ package splunk
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/turbot/steampipe-plugin-splunk/types"
 
@@ -17,6 +18,10 @@ func tableSplunkSearchJob(ctx context.Context) *plugin.Table {
 		Description: "List all search jobs.",
 		List: &plugin.ListConfig{
 			Hydrate: listSearchJob,
+		},
+		Get: &plugin.GetConfig{
+			Hydrate:    getSearchJob,
+			KeyColumns: plugin.SingleColumn("sid"),
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -81,6 +86,10 @@ func listSearchJob(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 
 	params := types.SearchJobListRequest{}
 
+	if d.QueryContext.Limit != nil {
+		params.Count = d.QueryContext.Limit
+	}
+
 	count := int64(0)
 	for {
 		params.Offset = types.Int64(count)
@@ -97,11 +106,49 @@ func listSearchJob(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 		}
 		for _, i := range obj.Entry {
 			d.StreamListItem(ctx, i)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
+
 			count++
 		}
 		if count >= *obj.Paging.Total {
 			break
 		}
+	}
+
+	return nil, nil
+}
+
+func getSearchJob(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	conn, err := connect(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("splunk_search_job.getSearchJob", "connection_error", err)
+		return nil, err
+	}
+
+	var searchID string
+	equalQuals := d.KeyColumnQuals
+	if equalQuals["sid"] != nil {
+		searchID = equalQuals["sid"].GetStringValue()
+	}
+
+	endpoint := conn.BuildSplunkURL(fmt.Sprintf("services/search/jobs/%s", searchID), nil)
+	data, err := conn.Get(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	obj := types.SearchJobListResponse{}
+	err = json.Unmarshal(data, &obj)
+	if err != nil {
+		plugin.Logger(ctx).Error("splunk_search_job.getSearchJob", "query_error", err)
+		return nil, err
+	}
+
+	if len(obj.Entry) > 0 {
+		return obj.Entry[0], nil
 	}
 
 	return nil, nil

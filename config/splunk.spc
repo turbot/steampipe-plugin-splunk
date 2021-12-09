@@ -1,20 +1,21 @@
 connection "splunk" {
   plugin = "splunk"
 
+  # If `url` is not specified, it will be loaded from the `SPLUNK_URL`
+  # environment variable.
   url = "localhost:8089"
-  username = "admin"
-  password = "password"
 
-  # Paths is a list of locations to search for Dockerfiles by default.
-  # Wildcards are supported per https://golang.org/pkg/path/filepath/#Match
-  # Exact file paths can have any name. Wildcard based matches must either
-  # have a name of Dockerfile (e.g. Dockerfile, Dockerfile.example) or an
-  # .splunkfile extension (e.g. nginx.splunkfile).
-  # paths = [ "/path/to/dir/*", "/path/to/exact/custom-splunkfile-name" ]
+  # You can connect to Splunk using one of the options below:
 
-  # Optional splunk engine configuration.
-  # host        = "tcp://192.168.59.103:2376"
-  # cert_path   = "/path/to/my-cert"
-  # api_version = "1.41"
-  # tls_verify  = true
+  # 1. Authenticate using username and password
+  # If `username` or `password` are not specified credentials will be loaded
+  # from the `SPLUNK_USERNAME` and `SPLUNK_PASSWORD` environment variables
+  # respectively.
+  # username = "admin"
+  # password = "password"
+
+  # 2. Authenticate using Splunk authentication token
+  # If `auth_token` is not specified, it will be loaded from the
+  # `SPLUNK_AUTH_TOKEN` environment variable.
+  # auth_token = "<YOUR_AUTH_TOKEN>"
 }
