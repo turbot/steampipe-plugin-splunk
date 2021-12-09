@@ -1,6 +1,9 @@
 # Table: splunk_search_job_result
 
-Retrieves the results of a given search job. A job is a process that tracks information about the ad hoc search or saved search. The information that is tracked includes the owner of the job, the app that the job was run on, how many events were returned, and how long the job took to run.
+Retrieves the results of a given search job. A job is a process that tracks
+information about the ad hoc search or saved search. The information that is
+tracked includes the owner of the job, the app that the job was run on, how
+many events were returned, and how long the job took to run.
 
 To query `splunk_search_job_result` table, **you must specify the search ID** in the where or join clause (`where sid=`, `join splunk_search_job_result on sid=`).
 

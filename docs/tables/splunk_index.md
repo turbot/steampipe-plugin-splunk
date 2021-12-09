@@ -1,6 +1,8 @@
 # Table: splunk_index
 
-Retrieves all indexes installed locally. An index in Splunk is simply a repository for the data. It is stored on an indexer, which is a Splunk instance configured to index local and remote data. The indexed data can then be searched through a search app.
+An index in Splunk is simply a repository for the data. It is stored on an
+indexer, which is a Splunk instance configured to index local and remote data.
+The indexed data can then be searched through a search app.
 
 ## Examples
 

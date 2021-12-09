@@ -1,8 +1,9 @@
 # Table: splunk_token
 
-Retrieves information about the authentication tokens. Authentication tokens let users of Splunk platform environments access REST endpoint resources or use the Splunk CLI in Splunk Enterprise environments.
+Authentication tokens let users of Splunk platform environments access REST
+endpoint resources or use the Splunk CLI in Splunk Enterprise environments.
 
-**Note:** You must enable token authentication. See [Enable or disable token authentication](https://docs.splunk.com/Documentation/Splunk/8.2.3/Security/EnableTokenAuth).
+**Note:** You must enable token authentication. Please see [Enable or disable token authentication](https://docs.splunk.com/Documentation/Splunk/8.2.3/Security/EnableTokenAuth).
 
 ## Examples
 

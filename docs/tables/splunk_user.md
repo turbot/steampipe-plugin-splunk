@@ -1,6 +1,8 @@
 # Table: splunk_user
 
-Retrieves information about the current users.
+Users can be assigned different privileges to configure the overall deployment,
+manage other users' accounts and permissions, search for events, and build
+reports.
 
 ## Examples
 
