@@ -34,7 +34,7 @@ func tableSplunkApp(ctx context.Context) *plugin.Table {
 			{Name: "author", Type: proto.ColumnType_STRING, Description: "Author of this object in the system."},
 			{Name: "check_for_updates", Type: proto.ColumnType_BOOL, Transform: transform.FromField("Content.CheckForUpdates"), Description: "If true, then check Splunkbase for app updates."},
 			{Name: "configured", Type: proto.ColumnType_BOOL, Transform: transform.FromField("Content.Configured"), Description: "If true, then Custom app setup is complete."},
-			{Name: "core", Type: proto.ColumnType_BOOL, Transform: transform.FromField("Content.Core"), Description: ""},
+			{Name: "core", Type: proto.ColumnType_BOOL, Transform: transform.FromField("Content.Core"), Description: "Indicates whether the app is a default app."},
 			{Name: "details", Type: proto.ColumnType_STRING, Transform: transform.FromField("Content.Details"), Description: "URL to use for detailed information about the app."},
 			{Name: "disabled", Type: proto.ColumnType_BOOL, Transform: transform.FromField("Content.Disabled"), Description: "If true, the app is disabled."},
 			{Name: "id", Type: proto.ColumnType_STRING, Description: "ID of the app."},
