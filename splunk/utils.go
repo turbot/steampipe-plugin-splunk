@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -19,7 +18,7 @@ import (
 
 	"github.com/google/go-querystring/query"
 
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
 )
 
 type splunkClient struct {
@@ -99,7 +98,7 @@ func (c *splunkClient) DoRequest(method string, requestURL url.URL, reqBody inte
 	// Read the body (if available)
 	if response.Body != nil {
 		defer response.Body.Close()
-		body, err = ioutil.ReadAll(response.Body)
+		body, err = io.ReadAll(response.Body)
 		if err != nil {
 			return nil, err
 		}
