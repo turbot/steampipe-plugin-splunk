@@ -8,12 +8,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/go-querystring/query"
@@ -54,9 +56,24 @@ func (c *splunkClient) BuildSplunkURL(path string, params interface{}) url.URL {
 		q.Set("count", "0")
 	}
 
+	// By default use https
+	urlScheme := "https"
+	host := c.URL
+
+	parsedAPIURL, parseErr := url.Parse(c.URL)
+	if parseErr != nil {
+		panic(parseErr)
+	}
+
+	// If full URL, use use the scheme provided in the URL
+	if parsedAPIURL.Host != "" {
+		urlScheme = parsedAPIURL.Scheme
+		host = parsedAPIURL.Host
+	}
+
 	u := url.URL{
-		Scheme:   "https",
-		Host:     c.URL,
+		Scheme:   urlScheme,
+		Host:     host,
 		Path:     path,
 		RawQuery: q.Encode(),
 	}
@@ -291,4 +308,18 @@ func newHTTPClient(timeout time.Duration, insecureSkipVerify bool) (*http.Client
 		},
 	}
 	return client, nil
+}
+
+func isFullUrl(str string) bool {
+	url, err := url.ParseRequestURI(str)
+	if err != nil {
+		return false
+	}
+
+	address := net.ParseIP(url.Host)
+	if address == nil {
+		return strings.Contains(url.Host, ".")
+	}
+
+	return true
 }
