@@ -8,14 +8,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"reflect"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/google/go-querystring/query"
@@ -308,18 +306,4 @@ func newHTTPClient(timeout time.Duration, insecureSkipVerify bool) (*http.Client
 		},
 	}
 	return client, nil
-}
-
-func isFullUrl(str string) bool {
-	url, err := url.ParseRequestURI(str)
-	if err != nil {
-		return false
-	}
-
-	address := net.ParseIP(url.Host)
-	if address == nil {
-		return strings.Contains(url.Host, ".")
-	}
-
-	return true
 }
