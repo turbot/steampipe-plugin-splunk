@@ -54,9 +54,24 @@ func (c *splunkClient) BuildSplunkURL(path string, params interface{}) url.URL {
 		q.Set("count", "0")
 	}
 
+	// By default use https
+	urlScheme := "https"
+	host := c.URL
+
+	parsedAPIURL, parseErr := url.Parse(c.URL)
+	if parseErr != nil {
+		panic(parseErr)
+	}
+
+	// If full URL, use use the scheme provided in the URL
+	if parsedAPIURL.Host != "" {
+		urlScheme = parsedAPIURL.Scheme
+		host = parsedAPIURL.Host
+	}
+
 	u := url.URL{
-		Scheme:   "https",
-		Host:     c.URL,
+		Scheme:   urlScheme,
+		Host:     host,
 		Path:     path,
 		RawQuery: q.Encode(),
 	}
@@ -251,7 +266,7 @@ func connect(_ context.Context, d *plugin.QueryData) (*splunkClient, error) {
 	// Defaults
 	timeout := 30
 	if url == "" {
-		url = "localhost:8089"
+		url = "https://localhost:8089"
 	}
 
 	// Error if the minimum config is not set
