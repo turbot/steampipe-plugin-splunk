@@ -1,9 +1,10 @@
 connection "splunk" {
   plugin = "splunk"
 
-  # If `url` is not specified, it will be loaded from the `SPLUNK_URL`
-  # environment variable.
-  url = "localhost:8089"
+  # Splunk base URL.
+  # Can also be set with the SPLUNK_URL environment variable.
+  # Defaults to "https://localhost:8089".
+  url = "https://localhost:8089"
 
   # You can connect to Splunk using one of the options below:
 

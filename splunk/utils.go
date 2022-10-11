@@ -266,7 +266,7 @@ func connect(_ context.Context, d *plugin.QueryData) (*splunkClient, error) {
 	// Defaults
 	timeout := 30
 	if url == "" {
-		url = "localhost:8089"
+		url = "https://localhost:8089"
 	}
 
 	// Error if the minimum config is not set
