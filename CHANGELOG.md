@@ -1,3 +1,9 @@
+## v0.3.0 [2022-10-11]
+
+_Enhancements_
+
+- Updated `url` config argument to handle passing in URLs with the protocol, e.g., `https://prd-p-abcd1.splunkcloud.com`. If a URL without a protocol is passed in, e.g., `prd-p-abcd1.splunkcloud.com`, HTTPS will be used. ([#13](https://github.com/turbot/steampipe-plugin-splunk/pull/13))
+
 ## v0.2.0 [2022-09-27]
 
 _Dependencies_
