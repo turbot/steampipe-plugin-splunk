@@ -8,6 +8,7 @@ short_name: "splunk"
 description: "Steampipe plugin to query apps, indexes, logs and more from Splunk."
 og_description: "Query Splunk with SQL! Open source CLI. No DB required."
 og_image: "/images/plugins/turbot/splunk-social-graphic.png"
+engines: ["steampipe", "sqlite", "postgres", "export"]
 ---
 
 # Splunk + Steampipe
