@@ -8,13 +8,14 @@ short_name: "splunk"
 description: "Steampipe plugin to query apps, indexes, logs and more from Splunk."
 og_description: "Query Splunk with SQL! Open source CLI. No DB required."
 og_image: "/images/plugins/turbot/splunk-social-graphic.png"
+engines: ["steampipe", "sqlite", "postgres", "export"]
 ---
 
 # Splunk + Steampipe
 
 [Splunk](https://splunk.com) software is used for searching, monitoring and analyzing log data.
 
-[Steampipe](https://steampipe.io) is an open source CLI to instantly query cloud APIs using SQL.
+[Steampipe](https://steampipe.io) is an open-source zero-ETL engine to instantly query cloud APIs using SQL.
 
 List indexes in your Splunk account:
 
@@ -78,7 +79,4 @@ connection "splunk" {
 }
 ```
 
-## Get involved
 
-- Open source: https://github.com/turbot/steampipe-plugin-splunk
-- Community: [Join #steampipe on Slack →](https://turbot.com/community/join)
