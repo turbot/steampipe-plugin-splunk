@@ -2,7 +2,7 @@
 
 # Splunk Plugin for Steampipe
 
-Use SQL to query apps, indexes, logs and more from Splunk.
+Use SQL to query apps, overviewes, logs and more from Splunk.
 
 - **[Get started →](https://hub.steampipe.io/plugins/turbot/splunk)**
 - Documentation: [Table definitions & examples](https://hub.steampipe.io/plugins/turbot/splunk/tables)
@@ -25,14 +25,14 @@ select
   max_time,
   total_event_count
 from
-  splunk_index;
+  splunk_overview;
 ```
 
 ```sh
 +----------------+---------------------+-------------------+
 | name           | max_time            | total_event_count |
 +----------------+---------------------+-------------------+
-| my_event_index | 2021-11-18T01:29:21 | 2345              |
+| my_event_overview | 2021-11-18T01:29:21 | 2345              |
 +----------------+---------------------+-------------------+
 ```
 
@@ -43,9 +43,9 @@ This plugin is available for the following engines:
 | Engine        | Description
 |---------------|------------------------------------------
 | [Steampipe](https://steampipe.io/docs) | The Steampipe CLI exposes APIs and services as a high-performance relational database, giving you the ability to write SQL-based queries to explore dynamic data. Mods extend Steampipe's capabilities with dashboards, reports, and controls built with simple HCL. The Steampipe CLI is a turnkey solution that includes its own Postgres database, plugin management, and mod support.
-| [Postgres FDW](https://steampipe.io/docs/steampipe_postgres/index) | Steampipe Postgres FDWs are native Postgres Foreign Data Wrappers that translate APIs to foreign tables. Unlike Steampipe CLI, which ships with its own Postgres server instance, the Steampipe Postgres FDWs can be installed in any supported Postgres database version.
-| [SQLite Extension](https://steampipe.io/docs//steampipe_sqlite/index) | Steampipe SQLite Extensions provide SQLite virtual tables that translate your queries into API calls, transparently fetching information from your API or service as you request it.
-| [Export](https://steampipe.io/docs/steampipe_export/index) | Steampipe Plugin Exporters provide a flexible mechanism for exporting information from cloud services and APIs. Each exporter is a stand-alone binary that allows you to extract data using Steampipe plugins without a database.
+| [Postgres FDW](https://steampipe.io/docs/steampipe_postgres/overview) | Steampipe Postgres FDWs are native Postgres Foreign Data Wrappers that translate APIs to foreign tables. Unlike Steampipe CLI, which ships with its own Postgres server instance, the Steampipe Postgres FDWs can be installed in any supported Postgres database version.
+| [SQLite Extension](https://steampipe.io/docs//steampipe_sqlite/overview) | Steampipe SQLite Extensions provide SQLite virtual tables that translate your queries into API calls, transparently fetching information from your API or service as you request it.
+| [Export](https://steampipe.io/docs/steampipe_export/overview) | Steampipe Plugin Exporters provide a flexible mechanism for exporting information from cloud services and APIs. Each exporter is a stand-alone binary that allows you to extract data using Steampipe plugins without a database.
 | [Turbot Pipes](https://turbot.com/pipes/docs) | Turbot Pipes is the only intelligence, automation & security platform built specifically for DevOps. Pipes provide hosted Steampipe database instances, shared dashboards, snapshots, and more.
 
 ## Developing
