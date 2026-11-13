@@ -18,7 +18,7 @@ import (
 
 	"github.com/google/go-querystring/query"
 
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 
 type splunkClient struct {
@@ -112,7 +112,7 @@ func (c *splunkClient) DoRequest(method string, requestURL url.URL, reqBody inte
 
 	// Read the body (if available)
 	if response.Body != nil {
-		defer response.Body.Close()
+		defer func() { _ = response.Body.Close() }()
 		body, err = io.ReadAll(response.Body)
 		if err != nil {
 			return nil, err
@@ -230,11 +230,11 @@ func (he *HTTPError) Error() string {
 	return fmt.Sprintf("Http Error: [%v] %v %v", he.Status, he.Message, he.Body)
 }
 
-func connect(_ context.Context, d *plugin.QueryData) (*splunkClient, error) {
+func connect(ctx context.Context, d *plugin.QueryData) (*splunkClient, error) {
 
 	// Load connection from cache, which preserves throttling protection etc
 	cacheKey := "splunk"
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, cacheKey); ok {
 		return cachedData.(*splunkClient), nil
 	}
 
@@ -288,7 +288,7 @@ func connect(_ context.Context, d *plugin.QueryData) (*splunkClient, error) {
 	}
 
 	// Save to cache
-	d.ConnectionManager.Cache.Set(cacheKey, conn)
+	_ = d.ConnectionCache.Set(ctx, cacheKey, conn)
 
 	return conn, nil
 }
